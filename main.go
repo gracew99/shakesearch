@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "bytes"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"index/suffixarray"
@@ -41,9 +41,9 @@ type Searcher struct {
 	SuffixArray   *suffixarray.Index
 }
 
-type searchResults struct {
-	Results   []string
-	Indexes   []int
+type searchResult struct {
+	Result   string
+	Index   int
 }
 
 func handleSearch(searcher Searcher) func(w http.ResponseWriter, r *http.Request) {
@@ -54,18 +54,19 @@ func handleSearch(searcher Searcher) func(w http.ResponseWriter, r *http.Request
 			w.Write([]byte("missing search query in URL params"))
 			return
 		}
+		fmt.Println("SEARCHING")
 		results := searcher.Search(query[0])
-		// buf := &bytes.Buffer{}
-		// enc := json.NewEncoder(buf)
-		// err := enc.Encode(results)
+		buf := &bytes.Buffer{}
+		enc := json.NewEncoder(buf)
+		err := enc.Encode(results)
 		// user := &User{Name: "Frank"}
-		b, err := json.Marshal(results)
+		// b, err := json.Marshal(results)
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Println("HUH")
-		fmt.Println(string(b))
-		fmt.Println("HUH")
+		// fmt.Println("HUH")
+		// fmt.Println(string(b))
+		// fmt.Println("HUH")
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("encoding failure"))
@@ -74,12 +75,12 @@ func handleSearch(searcher Searcher) func(w http.ResponseWriter, r *http.Request
 		w.Header().Set("Access-Control-Allow-Origin", "*")
     	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		w.Header().Set("Content-Type", "application/json")
-		a, c := w.Write(b)
-		if c != nil {
-			fmt.Println(c)
-		} else {
-			fmt.Println(a)
-		}
+		w.Write(buf.Bytes())
+		// if c != nil {
+		// 	fmt.Println(c)
+		// } else {
+		// 	fmt.Println(a)
+		// }
 	}
 }
 
@@ -93,15 +94,15 @@ func (s *Searcher) Load(filename string) error {
 	return nil
 }
 
-func (s *Searcher) Search(query string) searchResults {
+func (s *Searcher) Search(query string) []searchResult {
 	idxs := s.SuffixArray.Lookup([]byte(query), -1)
-	results := []string{}
+	results := []searchResult{}
 	for _, idx := range idxs {
 		lowerBound := int(math.Max(0, float64(idx-250)))
 		upperBound := int(math.Min(float64(len(s.CompleteWorks)), float64(idx+250)))
 		boldedResult := s.CompleteWorks[lowerBound: idx] + "<strong>" +  s.CompleteWorks[idx: idx+len(query)] + "</strong>" + s.CompleteWorks[idx+len(query): upperBound]
-		results = append(results, boldedResult)
+		finalResult := searchResult{Result: boldedResult, Index: idx}
+		results = append(results, finalResult)
 	}
-	toReturn := searchResults{Results: results, Indexes: idxs}
-	return toReturn
+	return results
 }

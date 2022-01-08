@@ -9,7 +9,7 @@ function Table(props) {
                 {
                     props.results && props.results.map(result => {
                         return (
-                            <tr><p>{result}</p></tr> 
+                            <tr><p>{result.Index}: {result.Result}</p></tr> 
                         )
                 })}
             </tbody>

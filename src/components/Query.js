@@ -9,14 +9,14 @@ function Query(props) {
        event.preventDefault();
         console.log(query)
         await axios.get(`/search?q=${query}`).then((response) => {
-          props.setResults(response.data.Results)
+          props.setResults(response.data)
         });
         setQuery("")
       }
     return (
         <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
               <form id="form" onSubmit={search}>
-                  <input className="input" type="text" id="query" name="query" placeholder="Search..."onChange={handleChange}/>
+                  <input className="input" type="text" id="query" name="query" placeholder="Search..." onChange={handleChange}/>
                   <button type="submit">Search</button>
               </form>
         </div>
