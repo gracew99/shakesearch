@@ -12,7 +12,7 @@ function App() {
       </header>
         <Routes>
           <Route exact path="/" element={<HomePage/>} />
-          <Route exact path="/read" element={<ReadPage/>} />
+          <Route path="/read/:query/:index" element={<ReadPage/>} />
         </Routes>
 
     </div>

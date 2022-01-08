@@ -12,32 +12,14 @@ import Paper from '@mui/material/Paper';
 function ResultsTable(props) {
 
     let navigate = useNavigate();
-    async function readMore() {
-        console.log("read more")
-        navigate('/read');
+    async function readMore(query, index) {
+        const readUrl = '/read/' + query + '/' + index;
+        navigate(readUrl);
     }
-    // return (
-    //     <div className="tableDiv">
-    //         {props.results.length > 0 && <p> Displaying {props.results.length} Results </p>}
-            
-    //         <table id="table">
-    //         <tbody id="table-body">
-    //             {
-    //                 props.results && props.results.map(result => {
-    //                     return (
-    //                         <div className="tableRow">
-    //                             <tr>{ReactHtmlParser(result.Result)} <span style={{color: "blue"}} onClick={readMore}>Read More...</span></tr>
-    //                         </div>
-    //                     )
-    //             })}
-    //         </tbody>
-    //         </table>
-    //     </div>
-    // )
 
     return (
-        <div>
-            {props.results && props.results.length > 0 && <p> Displaying {props.results.length} Results </p>} 
+        <div className="tableDiv">
+            {props.results && props.results.length > 0 && <p> Displaying {props.results.length} Results for "{props.query}"</p>} 
             {props.results && props.results.length > 0 && <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
@@ -53,7 +35,7 @@ function ResultsTable(props) {
                     >
                     <TableCell align="left">{ReactHtmlParser(result.Result)}</TableCell>
                     <TableCell component="th" scope="row">
-                        {result.Index}
+                        {<span className="readMore" onClick={() => readMore(props.query, result.Index)}>{result.Index}</span>}
                     </TableCell>
                     </TableRow>
                 ))}

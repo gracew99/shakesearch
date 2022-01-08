@@ -27,3 +27,8 @@ tr {
   border: 1px solid black;
   border-collapse: collapse;
 }
+
+.readMore {
+  color: blue;
+  text-decoration: underline;
+}

@@ -11,6 +11,7 @@ import (
 	"os"
 	"sort"
 	"math"
+	"strconv"
 )
 
 func main() {
@@ -86,14 +87,24 @@ func handleSearch(searcher Searcher) func(w http.ResponseWriter, r *http.Request
 
 func handleRead(searcher Searcher) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// query, ok := r.URL.Query()["q"]
-		// if !ok || len(query[0]) < 1 {
-		// 	w.WriteHeader(http.StatusBadRequest)
-		// 	w.Write([]byte("missing search query in URL params"))
-		// 	return
-		// }
-		fmt.Println("READING")
-		results := searcher.Read()
+		index, ok := r.URL.Query()["index"]
+		if !ok || len(index) < 1 {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("missing index in URL params"))
+			return
+		}
+		query, ok1 := r.URL.Query()["query"]
+		if !ok1 || len(query[0]) < 1 {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("missing index in URL params"))
+			return
+		}
+
+		fmt.Println("READING from")
+		fmt.Println(index)
+		fmt.Println(query[0])
+		n, _ := strconv.Atoi(index[0])
+		results := searcher.Read(n, query[0])
 		buf := &bytes.Buffer{}
 		enc := json.NewEncoder(buf)
 		err := enc.Encode(results)
@@ -143,6 +154,9 @@ func (s *Searcher) Search(query string) []searchResult {
 	return results
 }
 
-func (s *Searcher) Read() string {
-	return s.CompleteWorks[0:1000]
+func (s *Searcher) Read(idx int, query string) string {
+	lowerBound := int(math.Max(0, float64(idx-500)))
+	upperBound := int(math.Min(float64(len(s.CompleteWorks)), float64(idx+500)))
+	boldedResult := s.CompleteWorks[lowerBound: idx] + "<mark>" +  s.CompleteWorks[idx: idx+len(query)] + "</mark>" + s.CompleteWorks[idx+len(query): upperBound]
+	return boldedResult
 }

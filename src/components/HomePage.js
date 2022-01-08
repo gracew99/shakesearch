@@ -4,11 +4,11 @@ import React, { useState } from 'react';
 
 function HomePage() {
     const [results, setResults] = useState([]);
-    const [queryLength, setQueryLength] = useState([]);
+    const [query, setQuery] = useState(""); // higher query
     return (
         <div>
-            <Query setResults={setResults} setQueryLength={setQueryLength}></Query>
-            <ResultsTable results={results} queryLength={queryLength}></ResultsTable>
+            <Query setResults={setResults} setQuery={setQuery}></Query>
+            <ResultsTable results={results} query={query}></ResultsTable>
         </div>
     )
 }
