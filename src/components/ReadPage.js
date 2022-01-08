@@ -17,9 +17,12 @@ function ReadPage() {
         read()
     }, [])
     return (
-        <div style={{display: "flex", marginTop: "10%", alignItems: "center", justifyContent: "center"}}>
-            <div>
-                {text}
+        <div>
+            <h1 className="title">Shakesearch</h1>
+            <div className="readPage">
+                <div style={{marginBottom: "10%"}}>
+                    {text}
+                </div>
             </div>
         </div>
     )

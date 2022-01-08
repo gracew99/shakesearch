@@ -3,8 +3,11 @@ import React from 'react';
 
 function HomePage() {
     return (
-        <div>
-            <HomeQuery />
+        <div className="home">
+            <h1 className="title">Shakesearch</h1>
+            <div className="homeBody">
+                <HomeQuery />
+            </div>
         </div>
     )
 }

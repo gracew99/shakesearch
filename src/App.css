@@ -1,3 +1,7 @@
+body {
+  height: 100vh;
+  background-color: #e3dccf;
+}
 .App {
   font-family: Arial, Helvetica, sans-serif;
   white-space: pre-wrap;
@@ -10,7 +14,8 @@
 }
 
 .tableDiv {
-  padding: 2%;
+  width: 80%;
+  margin-bottom: 10%;
 }
 
 .tableRow {
@@ -24,10 +29,60 @@ td,
 tr {
   width: 100%;
   border: 1px solid black;
-  border-collapse: collapse;
+  /* border-collapse: collapse; */
 }
 
 .readMore {
   color: blue;
   text-decoration: underline;
+}
+
+.title {
+  /* font-family: "Dancing Script"; */
+  font-family: "Dancing Script", cursive;
+  color: rgb(118, 92, 49);
+  margin-left: 1%;
+}
+
+.homeBody {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+  /* height: 100vh; */
+}
+
+.homeQuery {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+}
+
+.resultsBody {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.resultsQuery {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+  margin-top: 2%;
+}
+
+.readPage {
+  display: flex;
+  justify-content: center;
+  margin-top: 10%;
+  font-weight: 550;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.resultsTable {
+  min-width: 650;
+  background-color: #e3dccf;
 }

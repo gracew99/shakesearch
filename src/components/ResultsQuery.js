@@ -21,7 +21,7 @@ function ResultsQuery(props) {
         setQuery("")
       }
     return (
-        <div style={{marginTop: "10%", display: "flex", justifyContent: "center", alignItems: "center"}}>
+        <div className="resultsQuery">
               <form id="form" style={{flex: 0.7}} onSubmit={search}>
                   <TextField className="input" id="standard-basic" variant="standard" name="query" placeholder="Search..." onChange={handleChange}
                     InputProps={{

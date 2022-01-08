@@ -21,6 +21,7 @@ import PropTypes from 'prop-types';
 import axios from '../axios';
 import { useParams } from "react-router-dom";
 import ResultsQuery from './ResultsQuery';
+import { borderRight } from '@mui/system';
 
 
 function TablePaginationActions(props) {
@@ -117,57 +118,62 @@ function ResultsTable(props) {
       };
 
     return (
-        <div className="tableDiv">
-            <ResultsQuery/>
-            {results.length > 0 && <p> Displaying {results.length} Results for "{query}"</p>} 
-            {results.length > 0 && <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead>
-                <TableRow>
-                    <TableCell>Text</TableCell>
-                    <TableCell>Character Position</TableCell>
-                </TableRow>
-                </TableHead>
-                <TableBody>
-                    {(rowsPerPage > 0
-                            ? results.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            : results
-                        ).map((result) => (
-                        <TableRow
-                        key={result.Index}
-                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                        >
-                        <TableCell align="left">{ReactHtmlParser(result.Result)}</TableCell>
-                        <TableCell component="th" scope="row">
-                            {<span className="readMore" onClick={() => readMore(query, result.Index)}>{result.Index}</span>}
-                        </TableCell>
-                        </TableRow>
-                    ))}
-                
-                </TableBody>
-                <TableFooter>
-                    <TableRow>
-                        <TablePagination
-                        rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-                        colSpan={2}
-                        count={results.length}
-                        rowsPerPage={rowsPerPage}
-                        page={page}
-                        SelectProps={{
-                            inputProps: {
-                            'aria-label': 'rows per page',
-                            },
-                            native: true,
-                        }}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                        ActionsComponent={TablePaginationActions}
-                        />
-                    </TableRow>
-                </TableFooter>
-            </Table>
-            </TableContainer>}
+      <div>
+        <h1 className="title">Shakesearch</h1>
+        <div className="resultsBody">
+          <ResultsQuery/>
+          <div className="tableDiv">
+              {results.length > 0 && <p> Displaying {results.length} Results for "{query}"</p>} 
+              {results.length > 0 && <TableContainer component={Paper}>
+              <Table className="resultsTable" aria-label="simple table">
+                  <TableHead>
+                  <TableRow>
+                      <TableCell sx={{border: "1px", fontWeight: "550" }}>Text</TableCell>
+                      <TableCell sx={{borderBottom: "1px", fontWeight: "550"}}>Character Position</TableCell>
+                  </TableRow>
+                  </TableHead>
+                  <TableBody>
+                      {(rowsPerPage > 0
+                              ? results.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                              : results
+                          ).map((result) => (
+                          <TableRow
+                          key={result.Index}
+                          >
+                          <TableCell sx={{ fontFamily: "Courier New", fontWeight: "550", border: "1px" }} align="left">{ReactHtmlParser(result.Result)}</TableCell>
+                          <TableCell  sx={{ fontFamily: "Courier New", fontWeight: "500", borderBottom: "1px" }} component="th" scope="row">
+                              {<span className="readMore" onClick={() => readMore(query, result.Index)}>{result.Index}</span>}
+                          </TableCell>
+                          </TableRow>
+                      ))}
+                  
+                  </TableBody>
+                  <TableFooter>
+                      <TableRow>
+                          <TablePagination
+                          sx={{ borderBottom: "1px" }}
+                          rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                          colSpan={2}
+                          count={results.length}
+                          rowsPerPage={rowsPerPage}
+                          page={page}
+                          SelectProps={{
+                              inputProps: {
+                              'aria-label': 'rows per page',
+                              },
+                              native: true,
+                          }}
+                          onPageChange={handleChangePage}
+                          onRowsPerPageChange={handleChangeRowsPerPage}
+                          ActionsComponent={TablePaginationActions}
+                          />
+                      </TableRow>
+                  </TableFooter>
+              </Table>
+              </TableContainer>}
+          </div>
         </div>
+      </div>
     );
 
 }
