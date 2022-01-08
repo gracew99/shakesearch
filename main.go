@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bytes"
+	// "bytes"
 	"encoding/json"
 	"fmt"
 	"index/suffixarray"
@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"math"
 )
 
 func main() {
@@ -18,14 +19,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fs := http.FileServer(http.Dir("./static"))
-	http.Handle("/", fs)
+	// fs := http.FileServer(http.Dir("./static"))
+	// http.Handle("/", fs)
 
 	http.HandleFunc("/search", handleSearch(searcher))
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "3001"
+		port = "8000"
 	}
 
 	fmt.Printf("Listening on port %s...", port)
@@ -40,6 +41,11 @@ type Searcher struct {
 	SuffixArray   *suffixarray.Index
 }
 
+type searchResults struct {
+	Results   []string
+	Indexes   []int
+}
+
 func handleSearch(searcher Searcher) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		query, ok := r.URL.Query()["q"]
@@ -49,16 +55,31 @@ func handleSearch(searcher Searcher) func(w http.ResponseWriter, r *http.Request
 			return
 		}
 		results := searcher.Search(query[0])
-		buf := &bytes.Buffer{}
-		enc := json.NewEncoder(buf)
-		err := enc.Encode(results)
+		// buf := &bytes.Buffer{}
+		// enc := json.NewEncoder(buf)
+		// err := enc.Encode(results)
+		// user := &User{Name: "Frank"}
+		b, err := json.Marshal(results)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println("HUH")
+		fmt.Println(string(b))
+		fmt.Println("HUH")
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("encoding failure"))
 			return
 		}
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+    	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(buf.Bytes())
+		a, c := w.Write(b)
+		if c != nil {
+			fmt.Println(c)
+		} else {
+			fmt.Println(a)
+		}
 	}
 }
 
@@ -72,11 +93,15 @@ func (s *Searcher) Load(filename string) error {
 	return nil
 }
 
-func (s *Searcher) Search(query string) []string {
+func (s *Searcher) Search(query string) searchResults {
 	idxs := s.SuffixArray.Lookup([]byte(query), -1)
 	results := []string{}
 	for _, idx := range idxs {
-		results = append(results, s.CompleteWorks[idx-250:idx+250])
+		lowerBound := int(math.Max(0, float64(idx-250)))
+		upperBound := int(math.Min(float64(len(s.CompleteWorks)), float64(idx+250)))
+		boldedResult := s.CompleteWorks[lowerBound: idx] + "<strong>" +  s.CompleteWorks[idx: idx+len(query)] + "</strong>" + s.CompleteWorks[idx+len(query): upperBound]
+		results = append(results, boldedResult)
 	}
-	return results
+	toReturn := searchResults{Results: results, Indexes: idxs}
+	return toReturn
 }
