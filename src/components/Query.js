@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import axios from '../axios';
+import TextField from '@mui/material/TextField';
+import SearchIcon from '@mui/icons-material/Search';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
+
 function Query(props) {
     const [query, setQuery] = useState(""); // local query
     function handleChange(event) {
@@ -15,10 +20,19 @@ function Query(props) {
         setQuery("")
       }
     return (
-        <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
-              <form id="form" onSubmit={search}>
-                  <input className="input" type="text" id="query" name="query" placeholder="Search..." onChange={handleChange}/>
-                  <button type="submit">Search</button>
+        <div style={{marginTop: "10%", display: "flex", justifyContent: "center", alignItems: "center"}}>
+              <form id="form" style={{flex: 0.7}} onSubmit={search}>
+                  <TextField className="input" id="standard-basic" variant="standard" name="query" placeholder="Search..." onChange={handleChange}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment>
+                          <IconButton>
+                            <SearchIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
+                  />
               </form>
         </div>
     )
