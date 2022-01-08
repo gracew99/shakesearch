@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
-import axios from '../axios';
 import TextField from '@mui/material/TextField';
 import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
+import { useNavigate } from "react-router-dom";
 
-function Query(props) {
-    const [query, setQuery] = useState(""); // local query
+function HomeQuery(props) {
+    const [query, setQuery] = useState(""); 
+    let navigate = useNavigate();
+
     function handleChange(event) {
       setQuery(event.target.value);
     }
      async function search(event) {
-       event.preventDefault();
+        event.preventDefault();
+
+        const resultsUrl = '/results/' + query;
+        navigate(resultsUrl);
         console.log(query)
-        await axios.get(`/search?q=${query}`).then((response) => {
-          props.setResults(response.data)
-          props.setQuery(query) // announce to higher
-        });
         setQuery("")
       }
     return (
@@ -26,7 +27,7 @@ function Query(props) {
                     InputProps={{
                       endAdornment: (
                         <InputAdornment>
-                          <IconButton>
+                          <IconButton onClick={search}>
                             <SearchIcon />
                           </IconButton>
                         </InputAdornment>
@@ -38,4 +39,4 @@ function Query(props) {
     )
 }
 
-export default Query
+export default HomeQuery

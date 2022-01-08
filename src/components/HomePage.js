@@ -1,14 +1,10 @@
-import Query from './Query';
-import ResultsTable from './ResultsTable';
-import React, { useState } from 'react';
+import HomeQuery from './HomeQuery';
+import React from 'react';
 
 function HomePage() {
-    const [results, setResults] = useState([]);
-    const [query, setQuery] = useState(""); // higher query
     return (
         <div>
-            <Query setResults={setResults} setQuery={setQuery}></Query>
-            <ResultsTable results={results} query={query}></ResultsTable>
+            <HomeQuery />
         </div>
     )
 }

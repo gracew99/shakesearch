@@ -17,8 +17,10 @@ function ReadPage() {
         read()
     }, [])
     return (
-        <div>
-            {text}
+        <div style={{display: "flex", marginTop: "10%", alignItems: "center", justifyContent: "center"}}>
+            <div>
+                {text}
+            </div>
         </div>
     )
 }

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import ReactHtmlParser from 'react-html-parser'; 
 import { useNavigate } from "react-router-dom";
 import Table from '@mui/material/Table';
@@ -18,6 +18,9 @@ import LastPageIcon from '@mui/icons-material/LastPage';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import PropTypes from 'prop-types';
+import axios from '../axios';
+import { useParams } from "react-router-dom";
+import ResultsQuery from './ResultsQuery';
 
 
 function TablePaginationActions(props) {
@@ -82,8 +85,22 @@ function TablePaginationActions(props) {
   };
 
 function ResultsTable(props) {
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [results, setResults] = useState([])
+    const { query } = useParams();
+    
+    useEffect(() => {
+        async function search() {
+            console.log("NEW SEARCH!!")
+            await axios.get(`/search?q=${query}`).then((response) => {
+                setResults(response.data)
+            });
+        }
+        search()
+    }, [query])
+
+    
 
     let navigate = useNavigate();
     async function readMore(query, index) {
@@ -101,8 +118,9 @@ function ResultsTable(props) {
 
     return (
         <div className="tableDiv">
-            {props.results && props.results.length > 0 && <p> Displaying {props.results.length} Results for "{props.query}"</p>} 
-            {props.results && props.results.length > 0 && <TableContainer component={Paper}>
+            <ResultsQuery/>
+            {results.length > 0 && <p> Displaying {results.length} Results for "{query}"</p>} 
+            {results.length > 0 && <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                 <TableRow>
@@ -112,8 +130,8 @@ function ResultsTable(props) {
                 </TableHead>
                 <TableBody>
                     {(rowsPerPage > 0
-                            ? props.results.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            : props.results
+                            ? results.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                            : results
                         ).map((result) => (
                         <TableRow
                         key={result.Index}
@@ -121,7 +139,7 @@ function ResultsTable(props) {
                         >
                         <TableCell align="left">{ReactHtmlParser(result.Result)}</TableCell>
                         <TableCell component="th" scope="row">
-                            {<span className="readMore" onClick={() => readMore(props.query, result.Index)}>{result.Index}</span>}
+                            {<span className="readMore" onClick={() => readMore(query, result.Index)}>{result.Index}</span>}
                         </TableCell>
                         </TableRow>
                     ))}
@@ -132,7 +150,7 @@ function ResultsTable(props) {
                         <TablePagination
                         rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
                         colSpan={2}
-                        count={props.results.length}
+                        count={results.length}
                         rowsPerPage={rowsPerPage}
                         page={page}
                         SelectProps={{
