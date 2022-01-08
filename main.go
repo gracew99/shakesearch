@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"math"
 )
 
@@ -23,6 +24,7 @@ func main() {
 	// http.Handle("/", fs)
 
 	http.HandleFunc("/search", handleSearch(searcher))
+	http.HandleFunc("/read", handleRead(searcher))
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -59,14 +61,11 @@ func handleSearch(searcher Searcher) func(w http.ResponseWriter, r *http.Request
 		buf := &bytes.Buffer{}
 		enc := json.NewEncoder(buf)
 		err := enc.Encode(results)
-		// user := &User{Name: "Frank"}
 		// b, err := json.Marshal(results)
 		if err != nil {
 			fmt.Println(err)
 		}
-		// fmt.Println("HUH")
-		// fmt.Println(string(b))
-		// fmt.Println("HUH")
+
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("encoding failure"))
@@ -84,8 +83,44 @@ func handleSearch(searcher Searcher) func(w http.ResponseWriter, r *http.Request
 	}
 }
 
+
+func handleRead(searcher Searcher) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// query, ok := r.URL.Query()["q"]
+		// if !ok || len(query[0]) < 1 {
+		// 	w.WriteHeader(http.StatusBadRequest)
+		// 	w.Write([]byte("missing search query in URL params"))
+		// 	return
+		// }
+		fmt.Println("READING")
+		results := searcher.Read()
+		buf := &bytes.Buffer{}
+		enc := json.NewEncoder(buf)
+		err := enc.Encode(results)
+		// user := &User{Name: "Frank"}
+		// b, err := json.Marshal(results)
+		if err != nil {
+			fmt.Println(err)
+		}
+		// fmt.Println("HUH")
+		// fmt.Println(string(b))
+		// fmt.Println("HUH")
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("encoding failure"))
+			return
+		}
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+    	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Content-Type", "application/json;charset=UTF-8")
+		bytes := buf.Bytes()
+		w.Write(bytes)
+	}
+}
+
 func (s *Searcher) Load(filename string) error {
 	dat, err := ioutil.ReadFile(filename)
+
 	if err != nil {
 		return fmt.Errorf("Load: %w", err)
 	}
@@ -96,13 +131,18 @@ func (s *Searcher) Load(filename string) error {
 
 func (s *Searcher) Search(query string) []searchResult {
 	idxs := s.SuffixArray.Lookup([]byte(query), -1)
+	sort.Ints(idxs)
 	results := []searchResult{}
 	for _, idx := range idxs {
 		lowerBound := int(math.Max(0, float64(idx-250)))
 		upperBound := int(math.Min(float64(len(s.CompleteWorks)), float64(idx+250)))
-		boldedResult := s.CompleteWorks[lowerBound: idx] + "<strong>" +  s.CompleteWorks[idx: idx+len(query)] + "</strong>" + s.CompleteWorks[idx+len(query): upperBound]
+		boldedResult := s.CompleteWorks[lowerBound: idx] + "<mark>" +  s.CompleteWorks[idx: idx+len(query)] + "</mark>" + s.CompleteWorks[idx+len(query): upperBound]
 		finalResult := searchResult{Result: boldedResult, Index: idx}
 		results = append(results, finalResult)
 	}
 	return results
+}
+
+func (s *Searcher) Read() string {
+	return s.CompleteWorks[0:1000]
 }

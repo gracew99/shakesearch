@@ -10,6 +10,8 @@ function Query(props) {
         console.log(query)
         await axios.get(`/search?q=${query}`).then((response) => {
           props.setResults(response.data)
+          console.log(response.data[0].Result)
+          props.setQueryLength(query.length)
         });
         setQuery("")
       }

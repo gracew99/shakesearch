@@ -1,17 +1,20 @@
 import './App.css';
-import Query from './components/Query';
-import Table from './components/Table';
-import React, { useState } from 'react';
+import React from 'react';
+import { Routes, Route } from "react-router-dom";
+import HomePage from './components/HomePage';
+import ReadPage from './components/ReadPage';
 
 function App() {
-  const [results, setResults] = useState([]);
 
   return (
     <div className="App">
       <header className="App-header">
       </header>
-      <Query setResults={setResults}></Query>
-      <Table results={results}></Table>
+        <Routes>
+          <Route exact path="/" element={<HomePage/>} />
+          <Route exact path="/read" element={<ReadPage/>} />
+        </Routes>
+
     </div>
   );
 }
