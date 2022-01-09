@@ -178,7 +178,19 @@ func (s *Searcher) Search(query string) []searchResult {
 
 func (s *Searcher) Read(idx int, query string, highlight bool) string {
 	lowerBound := int(math.Max(0, float64(idx-500)))
+	for i := lowerBound; i > 0; i-- {
+		if s.CompleteWorks[i-1] == '\n' {
+			lowerBound = i
+			break
+		}
+	  }
 	upperBound := int(math.Min(float64(len(s.CompleteWorks)), float64(idx+500)))
+	for i := upperBound; i <= int(len(s.CompleteWorks)); i++ {
+		if s.CompleteWorks[i] == '\n' {
+			upperBound = i
+			break
+		}
+	  }
 	highlightedResult := s.CompleteWorks[lowerBound: idx] + "<mark>" +  s.CompleteWorks[idx: idx+len(query)] + "</mark>" + s.CompleteWorks[idx+len(query): upperBound]
 	if highlight {
 		return highlightedResult 

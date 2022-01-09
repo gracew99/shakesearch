@@ -89,9 +89,11 @@ function ResultsTable(props) {
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [results, setResults] = useState([])
     const { query } = useParams();
+    const [hasSearched, setHasSearched] = useState(0);
     
     useEffect(() => {
         async function search() {
+            setHasSearched(1)
             console.log("NEW SEARCH!!")
             await axios.get(`/search?q=${query}`).then((response) => {
                 setResults(response.data)
@@ -122,8 +124,9 @@ function ResultsTable(props) {
         <div className="resultsBody">
           <ResultsQuery/>
           <div className="tableDiv">
-              {results.length > 0 && <p> Displaying {results.length} Results for "{query}"</p>} 
-              {results.length > 0 && <TableContainer component={Paper}>
+              {hasSearched && <p> Displaying {results.length} Results for "{query}"</p>} 
+              {hasSearched && results.length === 0 && <p> No searches found. Try again</p>} 
+              {hasSearched && <TableContainer component={Paper}>
               <Table className="resultsTable" aria-label="simple table">
                   <TableHead>
                   <TableRow>
