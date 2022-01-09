@@ -12,6 +12,7 @@ import (
 	"sort"
 	"math"
 	"strconv"
+	"strings"
 )
 
 func main() {
@@ -58,7 +59,7 @@ func handleSearch(searcher Searcher) func(w http.ResponseWriter, r *http.Request
 			return
 		}
 		fmt.Println("SEARCHING")
-		results := searcher.Search(query[0])
+		results := searcher.Search(strings.ToLower(query[0]))
 		buf := &bytes.Buffer{}
 		enc := json.NewEncoder(buf)
 		err := enc.Encode(results)
@@ -136,7 +137,9 @@ func (s *Searcher) Load(filename string) error {
 		return fmt.Errorf("Load: %w", err)
 	}
 	s.CompleteWorks = string(dat)
-	s.SuffixArray = suffixarray.New(dat)
+	lowercaseStr := strings.ToLower(string(dat))
+	lowercaseArr := []byte(lowercaseStr)
+	s.SuffixArray = suffixarray.New(lowercaseArr)
 	return nil
 }
 
