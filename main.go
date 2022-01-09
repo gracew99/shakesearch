@@ -156,7 +156,19 @@ func (s *Searcher) Search(query string) []searchResult {
 	results := []searchResult{}
 	for _, idx := range idxs {
 		lowerBound := int(math.Max(0, float64(idx-100)))
+		for i := lowerBound; i > 0; i-- {
+			if s.CompleteWorks[i-1] == '\n' {
+				lowerBound = i
+				break
+			}
+		  }
 		upperBound := int(math.Min(float64(len(s.CompleteWorks)), float64(idx+100)))
+		for i := upperBound; i <= int(len(s.CompleteWorks)); i++ {
+			if s.CompleteWorks[i] == '\n' {
+				upperBound = i
+				break
+			}
+		  }
 		boldedResult := s.CompleteWorks[lowerBound: idx] + "<mark>" +  s.CompleteWorks[idx: idx+len(query)] + "</mark>" + s.CompleteWorks[idx+len(query): upperBound]
 		finalResult := searchResult{Result: boldedResult, Index: idx}
 		results = append(results, finalResult)
