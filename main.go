@@ -100,12 +100,19 @@ func handleRead(searcher Searcher) func(w http.ResponseWriter, r *http.Request) 
 			w.Write([]byte("missing index in URL params"))
 			return
 		}
+		highlight, ok2 := r.URL.Query()["highlight"]
+		if !ok2 || len(highlight[0]) < 1 {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("missing highlight in URL params"))
+			return
+		}
 
-		fmt.Println("READING from")
-		fmt.Println(index)
-		fmt.Println(query[0])
+
+
 		n, _ := strconv.Atoi(index[0])
-		results := searcher.Read(n, query[0])
+		highlightBool, _ := strconv.ParseBool(highlight[0])
+
+		results := searcher.Read(n, query[0], highlightBool)
 		buf := &bytes.Buffer{}
 		enc := json.NewEncoder(buf)
 		err := enc.Encode(results)
@@ -148,8 +155,8 @@ func (s *Searcher) Search(query string) []searchResult {
 	sort.Ints(idxs)
 	results := []searchResult{}
 	for _, idx := range idxs {
-		lowerBound := int(math.Max(0, float64(idx-250)))
-		upperBound := int(math.Min(float64(len(s.CompleteWorks)), float64(idx+250)))
+		lowerBound := int(math.Max(0, float64(idx-100)))
+		upperBound := int(math.Min(float64(len(s.CompleteWorks)), float64(idx+100)))
 		boldedResult := s.CompleteWorks[lowerBound: idx] + "<mark>" +  s.CompleteWorks[idx: idx+len(query)] + "</mark>" + s.CompleteWorks[idx+len(query): upperBound]
 		finalResult := searchResult{Result: boldedResult, Index: idx}
 		results = append(results, finalResult)
@@ -157,9 +164,12 @@ func (s *Searcher) Search(query string) []searchResult {
 	return results
 }
 
-func (s *Searcher) Read(idx int, query string) string {
+func (s *Searcher) Read(idx int, query string, highlight bool) string {
 	lowerBound := int(math.Max(0, float64(idx-500)))
 	upperBound := int(math.Min(float64(len(s.CompleteWorks)), float64(idx+500)))
-	boldedResult := s.CompleteWorks[lowerBound: idx] + "<mark>" +  s.CompleteWorks[idx: idx+len(query)] + "</mark>" + s.CompleteWorks[idx+len(query): upperBound]
-	return boldedResult
+	highlightedResult := s.CompleteWorks[lowerBound: idx] + "<mark>" +  s.CompleteWorks[idx: idx+len(query)] + "</mark>" + s.CompleteWorks[idx+len(query): upperBound]
+	if highlight {
+		return highlightedResult 
+	}
+	return s.CompleteWorks[lowerBound: upperBound]
 }

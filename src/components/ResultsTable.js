@@ -21,7 +21,6 @@ import PropTypes from 'prop-types';
 import axios from '../axios';
 import { useParams } from "react-router-dom";
 import ResultsQuery from './ResultsQuery';
-import { borderRight } from '@mui/system';
 
 
 function TablePaginationActions(props) {
@@ -128,7 +127,7 @@ function ResultsTable(props) {
               <Table className="resultsTable" aria-label="simple table">
                   <TableHead>
                   <TableRow>
-                      <TableCell sx={{border: "1px", fontWeight: "550" }}>Text</TableCell>
+                      <TableCell sx={{border: "1px", fontWeight: "550" }}>Text Preview</TableCell>
                       <TableCell sx={{borderBottom: "1px", fontWeight: "550"}}>Character Position</TableCell>
                   </TableRow>
                   </TableHead>
