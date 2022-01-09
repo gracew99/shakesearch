@@ -48,7 +48,7 @@ tr {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 70vh;
+  height: 60vh;
   /* height: 100vh; */
 }
 
@@ -85,4 +85,13 @@ tr {
 .resultsTable {
   min-width: 650;
   background-color: #e3dccf;
+}
+
+.shakespeare {
+  height: 32vh;
+}
+
+.homeImage {
+  display: flex;
+  justify-content: flex-end;
 }

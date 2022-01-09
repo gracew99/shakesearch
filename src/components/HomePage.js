@@ -8,6 +8,9 @@ function HomePage() {
             <div className="homeBody">
                 <HomeQuery />
             </div>
+            <div className="homeImage">
+                <img className="shakespeare" src='/shakespeare.png' alt="shakespeare"></img>
+            </div>
         </div>
     )
 }
