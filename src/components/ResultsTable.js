@@ -140,7 +140,7 @@ function ResultsTable(props) {
                               : results
                           ).map((result) => (
                           <TableRow
-                          key={result.Index}
+                          key={result.Index + result.Index + result.Query.length}
                           >
                           <TableCell sx={{ fontFamily: "Courier New", fontWeight: "550", border: "1px" }} align="left">{ReactHtmlParser(result.Result)}</TableCell>
                           <TableCell  sx={{ fontFamily: "Courier New", fontWeight: "500", borderBottom: "1px" }} component="th" scope="row">

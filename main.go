@@ -63,14 +63,15 @@ func handleSearch(searcher Searcher) func(w http.ResponseWriter, r *http.Request
 		initialResult := searcher.Search(strings.ToLower(query[0]))
 		fmt.Println(len(strings.Fields(query[0])))
 		additionalResults := []searchResult{}
-		for i := 0; i < len(strings.Fields(query[0])); i++ {
-			fmt.Println(strings.ToLower(strings.Fields(string(query[0]))[i]))
-			newResult := searcher.Search(strings.ToLower(strings.Fields(string(query[0]))[i]))
-			additionalResults = append(additionalResults, newResult...)
-
+		if len(strings.Fields(query[0])) > 1 {
+			for i := 0; i < len(strings.Fields(query[0])); i++ {
+				fmt.Println(strings.ToLower(strings.Fields(string(query[0]))[i]))
+				newResult := searcher.Search(strings.ToLower(strings.Fields(string(query[0]))[i]))
+				additionalResults = append(additionalResults, newResult...)
+	
+			}
 		}
-		fmt.Println("HERE ARE ")
-		fmt.Println(additionalResults[0:2])
+		// fmt.Println(additionalResults[0:2])
 		sort.Slice(additionalResults, func(i, j int) bool {
 			return additionalResults[i].Index < additionalResults[j].Index
 		})
@@ -186,14 +187,19 @@ func (s *Searcher) Search(query string) []searchResult {
 				break
 			}
 		  }
-		upperBound := int(math.Min(float64(len(s.CompleteWorks)), float64(idx+100)))
-		for i := upperBound; i <= int(len(s.CompleteWorks)); i++ {
+		
+		upperBound := int(math.Min(float64(len(s.CompleteWorks)-1), float64(idx+100)))
+		for i := upperBound; i >= idx; i-- {
 			if s.CompleteWorks[i] == '\n' {
 				upperBound = i
 				break
 			}
-		  }
-		boldedResult := s.CompleteWorks[lowerBound: idx] + "<mark>" +  s.CompleteWorks[idx: idx+len(query)] + "</mark>" + s.CompleteWorks[idx+len(query): upperBound]
+		}
+		
+		boldedResult := s.CompleteWorks[lowerBound: idx] + "<mark>" +  s.CompleteWorks[idx: idx+len(query)] + "</mark>" 
+		if idx+len(query) < len(s.CompleteWorks)-1 {
+			boldedResult = boldedResult + s.CompleteWorks[idx+len(query): upperBound]
+		}
 		
 		finalResult := searchResult{Result: boldedResult, Index: idx, Query: query}
 		results = append(results, finalResult)
@@ -209,8 +215,8 @@ func (s *Searcher) Read(idx int, query string, highlight bool) string {
 			break
 		}
 	  }
-	upperBound := int(math.Min(float64(len(s.CompleteWorks)), float64(idx+500)))
-	for i := upperBound; i <= int(len(s.CompleteWorks)); i++ {
+	upperBound := int(math.Min(float64(len(s.CompleteWorks)-1), float64(idx+500)))
+	for i := upperBound; i >= idx; i-- {
 		if s.CompleteWorks[i] == '\n' {
 			upperBound = i
 			break
