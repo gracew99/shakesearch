@@ -126,7 +126,7 @@ function ResultsTable(props) {
           <div className="tableDiv">
               {hasSearched && <p> Displaying {results.length} Results for "{query}"</p>} 
               {hasSearched && results.length === 0 && <p> No searches found. Try again</p>} 
-              {hasSearched && <TableContainer component={Paper}>
+              {hasSearched && results.length > 0 && <TableContainer component={Paper}>
               <Table className="resultsTable" aria-label="simple table">
                   <TableHead>
                   <TableRow>
@@ -144,7 +144,7 @@ function ResultsTable(props) {
                           >
                           <TableCell sx={{ fontFamily: "Courier New", fontWeight: "550", border: "1px" }} align="left">{ReactHtmlParser(result.Result)}</TableCell>
                           <TableCell  sx={{ fontFamily: "Courier New", fontWeight: "500", borderBottom: "1px" }} component="th" scope="row">
-                              {<span className="readMore" onClick={() => readMore(query, result.Index)}>{result.Index}</span>}
+                              {<span className="readMore" onClick={() => readMore(result.Query, result.Index)}>{result.Index}</span>}
                           </TableCell>
                           </TableRow>
                       ))}

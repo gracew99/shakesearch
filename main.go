@@ -48,6 +48,7 @@ type Searcher struct {
 type searchResult struct {
 	Result   string
 	Index   int
+	Query string
 }
 
 func handleSearch(searcher Searcher) func(w http.ResponseWriter, r *http.Request) {
@@ -59,7 +60,22 @@ func handleSearch(searcher Searcher) func(w http.ResponseWriter, r *http.Request
 			return
 		}
 		fmt.Println("SEARCHING")
-		results := searcher.Search(strings.ToLower(query[0]))
+		initialResult := searcher.Search(strings.ToLower(query[0]))
+		fmt.Println(len(strings.Fields(query[0])))
+		additionalResults := []searchResult{}
+		for i := 0; i < len(strings.Fields(query[0])); i++ {
+			fmt.Println(strings.ToLower(strings.Fields(string(query[0]))[i]))
+			newResult := searcher.Search(strings.ToLower(strings.Fields(string(query[0]))[i]))
+			additionalResults = append(additionalResults, newResult...)
+
+		}
+		fmt.Println("HERE ARE ")
+		fmt.Println(additionalResults[0:2])
+		sort.Slice(additionalResults, func(i, j int) bool {
+			return additionalResults[i].Index < additionalResults[j].Index
+		})
+		results := append(initialResult, additionalResults...)
+
 		buf := &bytes.Buffer{}
 		enc := json.NewEncoder(buf)
 		err := enc.Encode(results)
@@ -150,6 +166,14 @@ func (s *Searcher) Load(filename string) error {
 	return nil
 }
 
+func repeatedSlice(value, n int) []int {
+	arr := make([]int, n)
+	for i := 0; i < n; i++ {
+		arr[i] = value
+	}
+	return arr
+}
+
 func (s *Searcher) Search(query string) []searchResult {
 	idxs := s.SuffixArray.Lookup([]byte(query), -1)
 	sort.Ints(idxs)
@@ -170,7 +194,8 @@ func (s *Searcher) Search(query string) []searchResult {
 			}
 		  }
 		boldedResult := s.CompleteWorks[lowerBound: idx] + "<mark>" +  s.CompleteWorks[idx: idx+len(query)] + "</mark>" + s.CompleteWorks[idx+len(query): upperBound]
-		finalResult := searchResult{Result: boldedResult, Index: idx}
+		
+		finalResult := searchResult{Result: boldedResult, Index: idx, Query: query}
 		results = append(results, finalResult)
 	}
 	return results
