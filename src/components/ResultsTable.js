@@ -138,16 +138,16 @@ function ResultsTable(props) {
                       {(rowsPerPage > 0
                               ? results.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                               : results
-                          ).map((result) => (
+                          ).map((result) =>
                           <TableRow
                           key={result.Index + result.Index + result.Query.length}
                           >
                           <TableCell sx={{ fontFamily: "Courier New", fontWeight: "550", border: "1px" }} align="left">{ReactHtmlParser(result.Result)}</TableCell>
                           <TableCell  sx={{ fontFamily: "Courier New", fontWeight: "500", borderBottom: "1px" }} component="th" scope="row">
-                              {<span className="readMore" onClick={() => readMore(result.Query, result.Index)}>{result.Index}</span>}
+                              {/* {<span className="readMore" onClick={() => readMore(result.Query, result.Index)}>{result.Index}</span>} */}
                           </TableCell>
                           </TableRow>
-                      ))}
+                      )}
                   
                   </TableBody>
                   <TableFooter>
