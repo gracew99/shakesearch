@@ -12,6 +12,7 @@ Features Implemented:
 8. Instead of cutting of returned excerpts in the middle of the word, returned windows are full lines. 
 9. Display no results found message if applicable.
 10. Handle edge case on results page: matches that appeear at the very beginning/end of the document originally are out of bounds. 
+11. Display number of results found as well as query string.
 
 Future Changes:
 1. Loading icon while fetching results (for queries of "a" for example, the page intially displays 0 results).
