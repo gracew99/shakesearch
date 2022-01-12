@@ -94,11 +94,10 @@ func handleSearch(searcher Searcher) func(w http.ResponseWriter, r *http.Request
 		fmt.Println(len(results))
 
 		sort.Slice(results, func(i, j int) bool {
-			if results[i].Index < results[j].Index {
-				return true
-			} else {
+			if results[i].Index == results[j].Index {
 				return len(results[i].Query) > len(results[j].Query)
 			}
+			return results[i].Index < results[j].Index
 		})
 
 		// merge overlap
@@ -148,6 +147,9 @@ func handleSearch(searcher Searcher) func(w http.ResponseWriter, r *http.Request
 					// fmt.Println(mergedResults)
 
 				} else {
+					fmt.Println(compare.Index)
+					fmt.Println(anchorIndex)
+					fmt.Println(len(anchorQuery))
 					fmt.Println("SHOULD NOT REACH HERE")
 				}
 			} else {
