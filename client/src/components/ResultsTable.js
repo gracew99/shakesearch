@@ -18,7 +18,7 @@ import LastPageIcon from '@mui/icons-material/LastPage';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import PropTypes from 'prop-types';
-import axios from '../axios';
+import axios from 'axios';
 import { useParams } from "react-router-dom";
 import ResultsQuery from './ResultsQuery';
 

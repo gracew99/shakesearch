@@ -22,8 +22,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// fs := http.FileServer(http.Dir("./static"))
-	// http.Handle("/", fs)
+	fs := http.FileServer(http.Dir("./client/build"))
+	http.Handle("/", fs)
 
 	http.HandleFunc("/search", handleSearch(searcher))
 	http.HandleFunc("/read", handleRead(searcher))
@@ -93,122 +93,125 @@ func handleSearch(searcher Searcher) func(w http.ResponseWriter, r *http.Request
 		results := append(initialResult, additionalResults...)
 		fmt.Println(len(results))
 
-		sort.Slice(results, func(i, j int) bool {
-			if results[i].Index == results[j].Index {
-				return len(results[i].Query) > len(results[j].Query)
-			}
-			return results[i].Index < results[j].Index
-		})
-
-		// merge overlap
-		mergedResults := []mergedSearchResult{}
-		// special case: first item
-		var firstIndexArr []int
-		firstIndexArr = append(firstIndexArr, results[0].Index)
-		var firstQueryArr []string
-		firstQueryArr = append(firstQueryArr, results[0].Query)
-		firstMergedResult := mergedSearchResult{
-			LowerBound: results[0].LowerBound,
-			UpperBound: results[0].UpperBound,
-			Index: firstIndexArr,
-			Query: firstQueryArr,
-			
-		}
-
-		fmt.Println("Results")
-		// fmt.Println(results)
-
-		mergedResults = append(mergedResults, firstMergedResult)
-		// fmt.Println(mergedResults)
-		// current := mergedSearchResult {}
-		for i := 1; i < len(results); i++ {
-			anchor := mergedResults[len(mergedResults)-1]
-			compare := results[i]
-			// fmt.Println("Anchor then compare")
-			// fmt.Printf("%+v\n", anchor)
-			// fmt.Printf("%+v\n", compare)
-
-			// overlap with window
-			if compare.Index <= anchor.UpperBound {
-				// extend window
-				anchor.UpperBound = compare.UpperBound
-				// overlap with highlight: discard
-				anchorIndex := anchor.Index[len(anchor.Index)-1]
-				anchorQuery := anchor.Query[len(anchor.Query)-1]
-				if compare.Index >= anchorIndex && compare.Index <= anchorIndex + len(anchorQuery) {
-					fmt.Println("Swallow")
-					continue
-				} else if compare.Index > anchorIndex + len(anchorQuery) { 				// no overlap: append index/query
-					// fmt.Println("append to same sublist")
-					// fmt.Println(mergedResults)
-					anchor.Index = append(anchor.Index, compare.Index)
-					anchor.Query = append(anchor.Query, compare.Query)
-					mergedResults[len(mergedResults)-1] = anchor
-					// fmt.Println(mergedResults)
-
-				} else {
-					fmt.Println(compare.Index)
-					fmt.Println(anchorIndex)
-					fmt.Println(len(anchorQuery))
-					fmt.Println("SHOULD NOT REACH HERE")
-				}
-			} else {
-				// fmt.Println("append new list")
-				var indexArr []int
-				indexArr = append(indexArr, results[i].Index)
-				var queryArr []string
-				queryArr = append(queryArr, results[i].Query)
-
-				mergedResult := mergedSearchResult{
-					LowerBound: results[i].LowerBound,
-					UpperBound: results[i].UpperBound,
-					Index: indexArr,
-					Query: queryArr,
-					
-				}
-				mergedResults = append(mergedResults, mergedResult)
-			}
-		}
-
-		// fmt.Printf("%+v\n", mergedResults)
-		// fmt.Println("NOW")
-		// iterate through mergedResults and highlight
-
 		finalResults := []finalSearchResult{}
-		for i := 0; i < len(mergedResults); i++ {
-			// fmt.Println("loop")
-			result := searcher.CompleteWorks[mergedResults[i].LowerBound: mergedResults[i].Index[0]]
-			j := 0
-			// fmt.Println(strings.Fields(result))
-			// fmt.Println("inner loop")
-			for j = 0; j < len(mergedResults[i].Index)-1; j++ {
+		if len(results) > 0 {
+
+			sort.Slice(results, func(i, j int) bool {
+				if results[i].Index == results[j].Index {
+					return len(results[i].Query) > len(results[j].Query)
+				}
+				return results[i].Index < results[j].Index
+			})
+	
+			// merge overlap
+			mergedResults := []mergedSearchResult{}
+			// special case: first item
+			var firstIndexArr []int
+			firstIndexArr = append(firstIndexArr, results[0].Index)
+			var firstQueryArr []string
+			firstQueryArr = append(firstQueryArr, results[0].Query)
+			firstMergedResult := mergedSearchResult{
+				LowerBound: results[0].LowerBound,
+				UpperBound: results[0].UpperBound,
+				Index: firstIndexArr,
+				Query: firstQueryArr,
+				
+			}
+	
+			fmt.Println("Results")
+			// fmt.Println(results)
+	
+			mergedResults = append(mergedResults, firstMergedResult)
+			// fmt.Println(mergedResults)
+			// current := mergedSearchResult {}
+			for i := 1; i < len(results); i++ {
+				anchor := mergedResults[len(mergedResults)-1]
+				compare := results[i]
+				// fmt.Println("Anchor then compare")
+				// fmt.Printf("%+v\n", anchor)
+				// fmt.Printf("%+v\n", compare)
+	
+				// overlap with window
+				if compare.Index <= anchor.UpperBound {
+					// extend window
+					anchor.UpperBound = compare.UpperBound
+					// overlap with highlight: discard
+					anchorIndex := anchor.Index[len(anchor.Index)-1]
+					anchorQuery := anchor.Query[len(anchor.Query)-1]
+					if compare.Index >= anchorIndex && compare.Index <= anchorIndex + len(anchorQuery) {
+						fmt.Println("Swallow")
+						continue
+					} else if compare.Index > anchorIndex + len(anchorQuery) { 				// no overlap: append index/query
+						// fmt.Println("append to same sublist")
+						// fmt.Println(mergedResults)
+						anchor.Index = append(anchor.Index, compare.Index)
+						anchor.Query = append(anchor.Query, compare.Query)
+						mergedResults[len(mergedResults)-1] = anchor
+						// fmt.Println(mergedResults)
+	
+					} else {
+						fmt.Println(compare.Index)
+						fmt.Println(anchorIndex)
+						fmt.Println(len(anchorQuery))
+						fmt.Println("SHOULD NOT REACH HERE")
+					}
+				} else {
+					// fmt.Println("append new list")
+					var indexArr []int
+					indexArr = append(indexArr, results[i].Index)
+					var queryArr []string
+					queryArr = append(queryArr, results[i].Query)
+	
+					mergedResult := mergedSearchResult{
+						LowerBound: results[i].LowerBound,
+						UpperBound: results[i].UpperBound,
+						Index: indexArr,
+						Query: queryArr,
+						
+					}
+					mergedResults = append(mergedResults, mergedResult)
+				}
+			}
+	
+			// fmt.Printf("%+v\n", mergedResults)
+			// fmt.Println("NOW")
+			// iterate through mergedResults and highlight
+	
+			for i := 0; i < len(mergedResults); i++ {
+				// fmt.Println("loop")
+				result := searcher.CompleteWorks[mergedResults[i].LowerBound: mergedResults[i].Index[0]]
+				j := 0
+				// fmt.Println(strings.Fields(result))
+				// fmt.Println("inner loop")
+				for j = 0; j < len(mergedResults[i].Index)-1; j++ {
+					result += "<mark>"
+					result += searcher.CompleteWorks[mergedResults[i].Index[j]: mergedResults[i].Index[j] + len(mergedResults[i].Query[j])]
+					result += "</mark>"
+					result += searcher.CompleteWorks[mergedResults[i].Index[j] + len(mergedResults[i].Query[j]): mergedResults[i].Index[j+1]]
+	
+					// fmt.Println("temp")
+					// fmt.Println(strings.Fields(result))
+				}
+				// fmt.Println(j)
 				result += "<mark>"
 				result += searcher.CompleteWorks[mergedResults[i].Index[j]: mergedResults[i].Index[j] + len(mergedResults[i].Query[j])]
 				result += "</mark>"
-				result += searcher.CompleteWorks[mergedResults[i].Index[j] + len(mergedResults[i].Query[j]): mergedResults[i].Index[j+1]]
-
-				// fmt.Println("temp")
+				if mergedResults[i].Index[j] + len(mergedResults[i].Query[j]) < mergedResults[i].UpperBound {
+					// fmt.Println(mergedResults[i].Index[j] + len(mergedResults[i].Query[j]))
+					// fmt.Println(mergedResults[i].UpperBound)
+					result += searcher.CompleteWorks[mergedResults[i].Index[j] + len(mergedResults[i].Query[j]): mergedResults[i].UpperBound]
+				}
 				// fmt.Println(strings.Fields(result))
+				finalResult := finalSearchResult {
+					Result: result,
+					Index: mergedResults[i].Index,
+					Query: mergedResults[i].Query,
+				}
+				finalResults = append(finalResults, finalResult)
 			}
-			// fmt.Println(j)
-			result += "<mark>"
-			result += searcher.CompleteWorks[mergedResults[i].Index[j]: mergedResults[i].Index[j] + len(mergedResults[i].Query[j])]
-			result += "</mark>"
-			if mergedResults[i].Index[j] + len(mergedResults[i].Query[j]) < mergedResults[i].UpperBound {
-				// fmt.Println(mergedResults[i].Index[j] + len(mergedResults[i].Query[j]))
-				// fmt.Println(mergedResults[i].UpperBound)
-				result += searcher.CompleteWorks[mergedResults[i].Index[j] + len(mergedResults[i].Query[j]): mergedResults[i].UpperBound]
-			}
-			// fmt.Println(strings.Fields(result))
-			finalResult := finalSearchResult {
-				Result: result,
-				Index: mergedResults[i].Index,
-				Query: mergedResults[i].Query,
-			}
-			finalResults = append(finalResults, finalResult)
+			fmt.Println(len(finalResults))
+			// fmt.Println(finalResults)
 		}
-		fmt.Println(len(finalResults))
-		// fmt.Println(finalResults)
 		
 		buf := &bytes.Buffer{}
 		enc := json.NewEncoder(buf)

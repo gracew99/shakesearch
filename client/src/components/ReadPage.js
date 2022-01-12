@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import axios from '../axios';
+import axios from 'axios';
 import { useParams } from "react-router-dom";
 import ReactHtmlParser from 'react-html-parser'; 
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
